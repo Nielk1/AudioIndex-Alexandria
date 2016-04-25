@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Alexandria.Models.Library>
+@{
+    ViewBag.Title = "Configuration";
+}
+
+<h1>Settings</h1>
+
+@Html.Partial("Library", Model)
+
+@section scripts {
+    @Html.Partial("LibraryScripts")
+}

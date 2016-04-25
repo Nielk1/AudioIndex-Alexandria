@@ -1,0 +1,178 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        var txtLibraryNewName = $('#txtLibraryNewName');
+        var txtLibraryNewPath = $('#txtLibraryNewPath');
+        var btnLibraryNewAdd = $('#btnLibraryNewAdd');
+        var btnLibraryNewClear = $('#btnLibraryNewClear');
+
+        function ParseLibraryRow(row) {
+            var btnEnable = row.find('input[data-js-bootstrap-switch="true"]');
+            var btnDelete = row.find('.btnDelete');
+            var btnApply = row.find('.btnApply');
+            var btnDeleteCancel = row.find('.btnDeleteCancel');
+            var btnUndo = row.find('.btnUndo');
+            var txtPath = row.find('.txtPath');
+            var txtName = row.find('.txtName');
+
+            btnEnable.bootstrapSwitch({
+                onSwitchChange: function (evt, flags) {
+                    btnEnable.parents('.bootstrap-switch').block({ message: null });
+                    $.ajax({
+                        url: '@Url.Action("Library_Enable", "Config")',
+                        type: 'POST',
+                        data: { id: row.data('id'), toggle: flags },
+                        //dataType: 'html',
+                        success: function (data) {
+                            if (data == null) {
+                                btnEnable.bootstrapSwitch("state", !flags, true);
+                            } else {
+                                btnEnable.bootstrapSwitch("state", data, true);
+                            }
+                        },
+                        complete: function () {
+                            btnEnable.parents('.bootstrap-switch').unblock();
+                        },
+                    });
+                }
+            });
+
+            btnDelete.on('click', function (evt) {
+                row.block({ message: null });
+                $.ajax({
+                    url: '@Url.Action("Library_SoftDelete", "Config")',
+                    type: 'POST',
+                    data: { id: row.data('id') },
+                    dataType: 'html',
+                    success: function (data) {
+                        var newRow = $(data);
+                        row.replaceWith(newRow);
+                        row = newRow;
+                        ParseLibraryRow(row);
+                    },
+                    complete: function () {
+                        row.unblock();
+                    },
+                });
+            });
+
+            btnDeleteCancel.on('click', function (evt) {
+                row.block({ message: null });
+                $.ajax({
+                    url: '@Url.Action("Library_UndoSoftDelete", "Config")',
+                    type: 'POST',
+                    data: { id: row.data('id') },
+                    dataType: 'html',
+                    success: function (data) {
+                        var newRow = $(data);
+                        row.replaceWith(newRow);
+                        row = newRow;
+                        ParseLibraryRow(row);
+                    },
+                    complete: function () {
+                        row.unblock();
+                    },
+                });
+            });
+
+            btnUndo.on('click', function (evt) {
+                txtName.val(txtName.data('js-oldval'));
+                txtPath.val(txtPath.data('js-oldval'));
+                CheckRowAltered();
+            });
+
+            btnApply.on('click', function (evt) {
+                row.block({ message: null });
+                $.ajax({
+                    url: '@Url.Action("Library_Edit", "Config")',
+                    type: 'POST',
+                    data: { id: row.data('id'), name: txtName.val().trim(), path: txtPath.val().trim() },
+                    dataType: 'html',
+                    success: function (data) {
+                        var newRow = $(data);
+                        row.replaceWith(newRow);
+                        row = newRow;
+                        ParseLibraryRow(row);
+                    },
+                    complete: function () {
+                        row.unblock();
+                    },
+                });
+            });
+
+            txtName.add(txtPath).on('change', function (evt) {
+                CheckRowAltered();
+            });
+
+            function CheckRowAltered() {
+                if (txtName.val() != txtName.data('js-oldval') || txtPath.val() != txtPath.data('js-oldval')) {
+                    btnDelete.hide().prop('disabled', true);
+                    btnEnable.parents('.bootstrap-switch').hide();
+                    btnUndo.show().prop('disabled', false);
+                    btnApply.show().prop('disabled', false);
+                } else {
+                    btnUndo.hide().prop('disabled', true);
+                    btnApply.hide().prop('disabled', true);
+                    btnEnable.parents('.bootstrap-switch').show();
+                    btnDelete.show().prop('disabled', false);
+                }
+                if (txtName.val().trim().length == 0) {
+                    txtName.parent().addClass('has-error')
+                    btnApply.prop('disabled', true);
+                } else if (txtName.val() != txtName.data('js-oldval')) {
+                    txtName.parent().addClass('has-warning');
+                }else{
+                    txtName.parent().removeClass('has-error has-warning');
+                }
+                if (txtPath.val().trim().length == 0) {
+                    txtPath.parent().addClass('has-error')
+                    btnApply.prop('disabled', true);
+                } else if (txtPath.val() != txtPath.data('js-oldval')) {
+                    txtPath.parent().addClass('has-warning');
+                } else {
+                    txtPath.parent().removeClass('has-error has-warning');
+                }
+            }
+        }
+
+        $('#tblLibraryTable tbody tr[id^="rowLibrary_"]').each(function (idx, elem) {
+            var row = $(elem);
+            ParseLibraryRow(row);
+        });
+
+
+
+        txtLibraryNewName.add(txtLibraryNewPath).on('change', function (evt) {
+            if (txtLibraryNewName.val().trim().length > 0 && txtLibraryNewPath.val().trim().length > 0) {
+                btnLibraryNewAdd.add(btnLibraryNewClear).prop('disabled', false);
+            } else if (txtLibraryNewName.val().trim().length > 0 || txtLibraryNewPath.val().trim().length > 0) {
+                btnLibraryNewAdd.prop('disabled', true);
+                btnLibraryNewClear.prop('disabled', false);
+            } else {
+                btnLibraryNewAdd.add(btnLibraryNewClear).prop('disabled', true);
+            }
+        });
+
+        btnLibraryNewAdd.on('click', function (evt) {
+            btnLibraryNewAdd.parents('tr').block({ message: null });
+            $.ajax({
+                url: '@Url.Action("Library_AddNew", "Config")',
+                type: 'POST',
+                data: { name: txtLibraryNewName.val().trim(), path: txtLibraryNewPath.val().trim() },
+                dataType: 'html',
+                success: function (data) {
+                    var row = $(data);
+                    row.insertBefore('#rowLibrary_new')
+                    ParseLibraryRow(row);
+                },
+                complete: function (data) {
+                    btnLibraryNewAdd.parents('tr').unblock();
+                },
+            });
+        });
+
+        btnLibraryNewClear.on('click', function (evt) {
+            btnLibraryNewAdd.add(btnLibraryNewClear).prop('disabled', true);
+            txtLibraryNewName.add(txtLibraryNewPath).val('');
+        });
+    });
+</script>

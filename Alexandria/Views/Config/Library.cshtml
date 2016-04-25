@@ -1,0 +1,88 @@
+﻿@model IEnumerable<Alexandria.Models.Library>
+@{
+    ViewBag.Title = "Configuration";
+}
+
+<style>
+    #tblLibraryTable {
+        width: 100%;
+    }
+
+        #tblLibraryTable tbody tr td:first-child,
+        #tblLibraryTable thead tr th:first-child {
+            width: 124px;
+        }
+
+        #tblLibraryTable tbody tr td:nth-child(2),
+        #tblLibraryTable thead tr th:nth-child(2) {
+            width: 200px;
+        }
+
+    @@media (max-width: 596px) {
+        #tblLibraryTable tbody tr td:nth-child(2),
+        #tblLibraryTable thead tr th:nth-child(2) {
+            width: 100px;
+        }
+    }
+
+    #tblLibraryTable tbody tr td:nth-child(3),
+    #tblLibraryTable thead tr th:nth-child(3) {
+        width: auto;
+    }
+
+    #tblLibraryTable tbody tr td:last-child,
+    #tblLibraryTable thead tr th:last-child {
+        width: 56px;
+    }
+
+    #tblLibraryTable tbody tr.action_delete {
+        background: rgba(255, 0, 0, 128);
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Library</h3>
+    </div>
+
+    <table id="tblLibraryTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Path)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                @Component.Invoke("ConfigLibrarySubitem", item.ID)
+            }
+            <tr id="rowLibrary_new">
+                <td>
+                    <div class="btn-block">
+                        <button id="btnLibraryNewAdd" class="btn btn-success btn-block" disabled="disabled" aria-label="Add">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
+                        </button>
+                    </div>
+                </td>
+                <td>
+                    <input type="text" class="form-control" id="txtLibraryNewName" />
+                </td>
+                <td>
+                    <input type="text" class="form-control" id="txtLibraryNewPath" />
+                </td>
+                <td>
+                    <button id="btnLibraryNewClear" class="btn btn-danger" disabled="disabled" aria-label="Clear">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Alexandria", "Alexandria\Alexandria.xproj", "{2C9ED0A0-EB0D-449B-97A4-5F9A83500477}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AlexandriaDataBuild", "AlexandriaDataBuild\AlexandriaDataBuild.xproj", "{87456234-953C-4006-A8B6-B0CC08C8A4CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C9ED0A0-EB0D-449B-97A4-5F9A83500477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9ED0A0-EB0D-449B-97A4-5F9A83500477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9ED0A0-EB0D-449B-97A4-5F9A83500477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9ED0A0-EB0D-449B-97A4-5F9A83500477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87456234-953C-4006-A8B6-B0CC08C8A4CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87456234-953C-4006-A8B6-B0CC08C8A4CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87456234-953C-4006-A8B6-B0CC08C8A4CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87456234-953C-4006-A8B6-B0CC08C8A4CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

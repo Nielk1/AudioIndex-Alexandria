@@ -1,0 +1,63 @@
+﻿
+@model IEnumerable<Alexandria.Models.Library>
+
+@foreach (var item in Model)
+{
+    @if (item.Expire.HasValue)
+    {
+        <tr id="rowLibrary_@item.ID" data-id="@item.ID" class="danger">
+            <td>
+                <div class="btn-block">
+                    <button class="btn btn-warning btn-block btnDeleteCancel" aria-label="Restore">
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Restore
+                    </button>
+                </div>
+            </td>
+            <td>
+                <input type="text" class="form-control" id="" asp-for="@item.Name" disabled="disabled" />
+                @*@Html.TextBoxFor(modelItem => item.Name)*@
+            </td>
+            <td>
+                @*@Html.TextBoxFor(modelItem => item.Path)*@
+                <input type="text" class="form-control" id="" asp-for="@item.Path" disabled="disabled" />
+                @*@Html.DisplayFor(modelItem => item.Path)*@
+            </td>
+            <td>
+                <button class="btn btn-danger btnDelete" asp-route-id="@item.ID" aria-label="Delete" disabled="disabled">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+    }
+    else
+    {
+        <tr id="rowLibrary_@item.ID" data-id="@item.ID">
+            <td>
+                @*<input type="number" class="form-control" min="0" max="@(Model.Count() - 1)" asp-for="@item.Sort" />*@
+                <input type="checkbox" data-js-bootstrap-switch="true" asp-for="@item.Enabled" />
+                <div class="btn-block">
+                    <button class="btn btn-success btn-block btnApply" style="display:none;" aria-label="Apply">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Apply
+                    </button>
+                </div>
+            </td>
+            <td>
+                <input type="text" class="form-control txtName" data-js-oldval="@item.Name" id="" asp-for="@item.Name" />
+                @*@Html.TextBoxFor(modelItem => item.Name)*@
+            </td>
+            <td>
+                @*@Html.TextBoxFor(modelItem => item.Path)*@
+                <input type="text" class="form-control txtPath" data-js-oldval="@item.Path" id="" asp-for="@item.Path" />
+                @*@Html.DisplayFor(modelItem => item.Path)*@
+            </td>
+            <td>
+                <button class="btn btn-danger btnDelete" asp-route-id="@item.ID" aria-label="Delete">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+                <button style="display:none;" class="btn btn-primary btnUndo" aria-label="Clear">
+                    <span class="glyphicon glyphicon-backward" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+    }
+}
