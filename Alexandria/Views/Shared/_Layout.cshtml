@@ -9,6 +9,7 @@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/lib/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css" />
         <link rel="stylesheet" href="~/lib/bootsnipp-checked-list-group/dist/css/checked-list-group.css" />
+        <link href="~/lib/mediaelement/build/mediaelementplayer.css" rel="stylesheet" />
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment names="Staging,Production">
@@ -17,6 +18,7 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/lib/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/lib/bootsnipp-checked-list-group/dist/css/checked-list-group.css" asp-append-version="true" />
+        <link href="~/lib/mediaelement/build/mediaelementplayer.css" rel="stylesheet" />
         @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     </environment>
@@ -55,7 +57,7 @@
         </div>
         <div id="player">
             <div class="well">Player</div>
-            <audio id="audioPlayer" src=""></audio>
+            <audio id="audioPlayer"></audio>
         </div>
     </footer>
     <environment names="Development">

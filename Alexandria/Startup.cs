@@ -60,6 +60,10 @@ namespace Alexandria
 
             app.UseStaticFiles();
 
+            app.UseStreamSystemMiddleware();
+
+            app.UseProcessingTimeMiddleware();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

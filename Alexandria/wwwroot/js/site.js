@@ -14,12 +14,22 @@ $(document).ready(function () {
         return false; //for good measure
     });
 
-    $('video,audio').mediaelementplayer(/* Options */);
+    var audioPlayer = null;
+
+    new MediaElementPlayer('#audioPlayer', {
+        features: ['playpause', 'progress', 'current', 'duration', 'volume'/*, 'fullscreen'*/],
+        loop: false,
+        type: 'audio/mp3',
+        success: function (mediaElement, originalNode) {
+            audioPlayer = mediaElement;
+        }
+    });
 
     $(document).on('click', '.audio-play', function (event) {
         event.preventDefault();
 
-        $('#audioPlayer').attr('src', '/API/Stream?id=' + $(event.target).data('file-id'));
+        audioPlayer.setSrc('/API/Stream?id=' + $(event.target).data('file-id'));
+        audioPlayer.play();
 
         return false; //for good measure
     });
