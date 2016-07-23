@@ -2,7 +2,9 @@
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Http;
 using Microsoft.Data.Entity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.OptionsModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,15 +15,21 @@ using System.Threading.Tasks;
 
 namespace Alexandria
 {
+    public class StreamSystemMiddlewareOptions
+    {
+        public string ffmpeg { get; set; }
+    }
+
     public class StreamSystemMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger Logger;
+        private readonly StreamSystemMiddlewareOptions Options;
         private readonly MusicContext MusicContext;
 
         private Dictionary<string, PlaybackData> Buffer = new Dictionary<string, PlaybackData>();
 
-        public StreamSystemMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, MusicContext MusicContext)
+        public StreamSystemMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, StreamSystemMiddlewareOptions options, MusicContext MusicContext)
         {
             if (next == null)
             {
@@ -40,12 +48,13 @@ namespace Alexandria
 
             this._next = next;
             this.Logger = loggerFactory.CreateLogger<StreamSystemMiddleware>();
+            this.Options = options;
             this.MusicContext = MusicContext;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            Logger.LogCritical($"{context.Request.Path}{context.Request.QueryString}\n{context.Request.Headers["Range"]}");
+            Logger.LogInformation($"{context.Request.Path}{context.Request.QueryString}\n{context.Request.Headers["Range"]}");
 
             if (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/API/"))
             {
@@ -98,17 +107,22 @@ namespace Alexandria
 
                                 if (newStream)
                                 {
+                                    {// note how long the file is for output aproximation
+                                        dat.Seconds = 600;
+                                        dat.bitrate = 320;
+                                    }
+
+
                                     dat.contentLengthCounter = 0;
                                     dat.writing = true;
                                     (new Thread(() =>
                                     {
-                                        string bitrate = "320";
-                                        string args = $"-i \"{fullPath}\" -map 0:0 -b:a {bitrate}k -v 0 -f mp3 -";
+                                        string argsP = $"-i \"{fullPath}\" -map 0:0 -b:a {dat.bitrate}k -v 0 -f mp3 -";
                                         Process ffmpeg;
                                         ffmpeg = new Process();
-                                        ffmpeg.StartInfo.WorkingDirectory = @"D:\Program Files (loose)\ffmpeg\ffmpeg-20150717-git-8250943-win64-static\bin\";
-                                        ffmpeg.StartInfo.FileName = "\"D:\\Program Files (loose)\\ffmpeg\\ffmpeg-20150717-git-8250943-win64-static\\bin\\ffmpeg.exe\"";
-                                        ffmpeg.StartInfo.Arguments = args;
+                                        ffmpeg.StartInfo.WorkingDirectory = Options.ffmpeg;
+                                        ffmpeg.StartInfo.FileName = "\"" + Options.ffmpeg + "ffmpeg.exe\"";
+                                        ffmpeg.StartInfo.Arguments = argsP;
                                         ffmpeg.StartInfo.RedirectStandardOutput = true;
                                         //ffmpeg.StartInfo.CreateNoWindow = true;
                                         ffmpeg.StartInfo.UseShellExecute = false;
@@ -132,6 +146,8 @@ namespace Alexandria
                                 int stillTranscodingStripeSize = 1024 * 16;
                                 int stripeSize = defaultStripeSize;
                                 string totalSizeString = "*";
+                                //string totalSizeString = "999999999999";
+                                //string totalSizeString = "";
                                 int totalSize = -1;
                                 string startIndexString = "0";
                                 string endIndexString = null;
@@ -174,6 +190,14 @@ namespace Alexandria
                                         totalSize = dat.contentLengthCounter;
                                         totalSizeString = totalSize.ToString();
                                     }
+                                    //else // failed hack to get browsers to download partial
+                                    //{
+                                    //    totalSizeString = (startIndex + stripeSize * 2).ToString();
+                                    //}
+                                    else if(dat.Seconds > 0)
+                                    {
+                                        totalSizeString = ((int)((dat.Seconds * (dat.bitrate * 1000)) / 8)).ToString();
+                                    }
                                 }
 
                                 //check stripeSize isn't negative (can only happen if fully transcoded else the system would avoid it)
@@ -182,22 +206,32 @@ namespace Alexandria
                                 if (totalSize > 0 && startIndex >= totalSize)
                                 {
                                     context.Response.StatusCode = 416;
+                                    context.Response.ContentType = "audio/mpeg";
+                                    context.Response.Headers["Accept-Ranges"] = "bytes";
+                                    context.Response.Headers["Content-Range"] = $"bytes {startIndex}-*/{totalSizeString}";
+                                    //context.Response.Headers["Content-Length"] = stripeSize.ToString();
                                 }
                                 else
                                 {
-                                    if (totalSize >= 0 && (startIndex + stripeSize) >= totalSize)
-                                    {
-                                        context.Response.StatusCode = 206;
-                                    }
-                                    else
-                                    {
-                                        context.Response.StatusCode = 206;
-                                    }
+                                    //if (totalSize >= 0 && (startIndex + stripeSize) >= totalSize)
+                                    //{
+                                    //    context.Response.StatusCode = 206;
+                                    //}
+                                    //else
+                                    //{
+                                    //    context.Response.StatusCode = 206;
+                                    //}
+
+                                    context.Response.StatusCode = 206;
 
                                     context.Response.ContentType = "audio/mpeg";
                                     context.Response.Headers["Accept-Ranges"] = "bytes";
                                     context.Response.Headers["Content-Range"] = $"bytes {startIndex}-{startIndex + stripeSize - 1}/{totalSizeString}";
                                     context.Response.Headers["Content-Length"] = stripeSize.ToString();
+
+                                    //context.Response.Headers["Transfer-Encoding"] = @"chunked";
+                                    //context.Response.Headers["Cache-control"] = "";
+                                    //context.Response.Headers["Pragma"] = "";
 
                                     //X-Content-Duration: 63.23 
                                     lock (dat)
@@ -304,6 +338,9 @@ namespace Alexandria
 
         public int contentLengthCounter = 0;
         public bool writing = true;
+
+        public float Seconds = 0;
+        public int bitrate;
 
         public PlaybackData()
         {

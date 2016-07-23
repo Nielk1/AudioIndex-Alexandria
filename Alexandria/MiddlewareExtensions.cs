@@ -8,9 +8,9 @@ namespace Alexandria
 {
     public static class MiddlewareExtensions
     {
-        public static IApplicationBuilder UseStreamSystemMiddleware(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseStreamSystemMiddleware(this IApplicationBuilder builder, StreamSystemMiddlewareOptions options)
         {
-            return builder.UseMiddleware<StreamSystemMiddleware>();
+            return builder.UseMiddleware<StreamSystemMiddleware>(options);
         }
 
         public static IApplicationBuilder UseProcessingTimeMiddleware(this IApplicationBuilder builder)

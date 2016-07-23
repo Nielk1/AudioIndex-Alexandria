@@ -60,7 +60,10 @@ namespace Alexandria
 
             app.UseStaticFiles();
 
-            app.UseStreamSystemMiddleware();
+            app.UseStreamSystemMiddleware(new StreamSystemMiddlewareOptions()
+            {
+                ffmpeg = Configuration.Get<string>("Paths:ffmpeg")
+            });
 
             app.UseProcessingTimeMiddleware();
 
