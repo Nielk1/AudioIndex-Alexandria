@@ -1,0 +1,4 @@
+Make Required Code Change
+From the Package Manager Console: Run Add-Migration [Migration Name]
+Make any neccessary changes to the generated code.
+From the Package Manager Console: Run Update-Database
